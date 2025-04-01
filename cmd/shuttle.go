@@ -17,6 +17,8 @@ func init() {
 	shuttleCmd.Flags().Int8Var(&updateTime, "refresh-time", 5, "specify the time (in seconds) to update the shuttles")
 	shuttleCmd.Flags().BoolVar(&createOnly, "create-only", false, "specify whether to only create the shuttles")
 	shuttleCmd.MarkFlagsMutuallyExclusive("create-only", "refresh-time")
+	shuttleCmd.MarkPersistentFlagRequired("api-key")
+
 }
 
 var updateTime int8
@@ -31,13 +33,14 @@ var shuttleCmd = &cobra.Command{
 		var champlainShuttles []structs.ChamplainShuttle
 		var shuttles []structs.Shuttle
 
-		resp, err := http.Get("https://shuttle.champlain.edu/shuttledata")
-		defer resp.Body.Close()
+		champlainShuttleResponse, err := http.Get("https://shuttle.champlain.edu/shuttledata")
+		defer champlainShuttleResponse.Body.Close()
 
 		if err != nil {
 			log.Fatal(fmt.Sprintf("Failed to connect to Champlain's shuttle API: %s\n", err))
 		}
-		body, _ := io.ReadAll(resp.Body)
+
+		body, _ := io.ReadAll(champlainShuttleResponse.Body)
 
 		// Convert Champlain's champlainShuttles into ChamplainAPI objects
 		jsonErr := json.Unmarshal(body, &champlainShuttles)
@@ -83,12 +86,14 @@ var shuttleCmd = &cobra.Command{
 				"Authorization": {"Bearer api-1"},
 			}
 
-			res, err := http.DefaultClient.Do(champlainAPIRequest) // Send the request
+			updateShuttleResponse, err := http.DefaultClient.Do(champlainAPIRequest) // Send the request
 			if err != nil {
 				log.Fatalf("Unable to send request: %s\n", err)
 			}
-			champBody, _ := io.ReadAll(res.Body)
-			log.Print(string(champBody))
+			//updateRequestBody, _ := io.ReadAll(updateShuttleResponse.Body)
+			if updateShuttleResponse.StatusCode == 201 {
+				log.Printf("Updated shuttle with id %d\n", shuttle.ID)
+			}
 		}
 		champlainAPIRequest.Body.Close()
 
