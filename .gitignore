@@ -1,0 +1,27 @@
+.idea/
+
+# https://github.com/github/gitignore/blob/86d1826a9f3daf4744e7229a26187f81c081744c/Go.gitignore#L2
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/champ-cli
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# env file
+.env
+
